@@ -46,47 +46,41 @@ export async function POST(request: NextRequest) {
 
     console.log('Processing video with ID:', videoId);
 
-    // First, extract actual video metadata using web scraping
+    // Extract video metadata using YouTube Data API (Netlify-compatible)
     let videoTitle = 'Video Title';
     let videoDescription = 'Video description not available';
     let channelName = 'Channel';
 
     try {
-      console.log('Fetching video metadata...');
-      const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-      });
+      console.log('Fetching video metadata using YouTube Data API...');
+      const youtubeApiKey = process.env.YOUTUBE_API_KEY;
       
-      if (response.ok) {
-        const html = await response.text();
+      if (youtubeApiKey) {
+        const youtubeResponse = await fetch(
+          `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&part=snippet&key=${youtubeApiKey}`
+        );
         
-        // Extract title
-        const titleMatch = html.match(/<title>([^<]+)<\/title>/);
-        if (titleMatch) {
-          videoTitle = titleMatch[1].replace(' - YouTube', '').trim();
+        if (youtubeResponse.ok) {
+          const youtubeData = await youtubeResponse.json();
+          if (youtubeData.items && youtubeData.items.length > 0) {
+            const video = youtubeData.items[0];
+            videoTitle = video.snippet.title || 'Video Title';
+            videoDescription = video.snippet.description || 'Video description not available';
+            channelName = video.snippet.channelTitle || 'Channel';
+            
+            console.log('YouTube API successful:', { 
+              videoTitle, 
+              channelName, 
+              descriptionLength: videoDescription.length 
+            });
+          }
         }
-        
-        // Extract description
-        const descMatch = html.match(/<meta name="description" content="([^"]+)"/);
-        if (descMatch) {
-          videoDescription = descMatch[1];
-        }
-        
-        // Extract channel name
-        const channelMatch = html.match(/"ownerText":\{"runs":\[\{"text":"([^"]+)"/);
-        if (channelMatch) {
-          channelName = channelMatch[1];
-        }
-        
-        console.log('Extracted metadata:', { videoTitle, channelName, descriptionLength: videoDescription.length });
       }
     } catch (error) {
-      console.error('Failed to fetch video metadata:', error);
+      console.error('YouTube API failed:', error);
     }
 
-    // If we couldn't get good metadata, try using Serper API as fallback
+    // Fallback to Serper API if YouTube API fails
     if (videoTitle === 'Video Title' || videoDescription === 'Video description not available') {
       try {
         const serperKey = process.env.SERPER_API_KEY;
@@ -99,7 +93,7 @@ export async function POST(request: NextRequest) {
               'X-API-KEY': serperKey,
             },
             body: JSON.stringify({
-              q: `site:youtube.com ${videoId}`,
+              q: `"${videoId}" site:youtube.com`,
               num: 1
             })
           });
