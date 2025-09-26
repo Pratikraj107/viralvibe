@@ -46,32 +46,96 @@ export async function POST(request: NextRequest) {
 
     console.log('Processing video with ID:', videoId);
 
-    // Use a more direct approach with explicit web browsing instructions
-    const systemPrompt = `You are a video content analyst with web browsing capabilities. You can access and watch YouTube videos directly through web browsing. 
+    // First, extract actual video metadata using web scraping
+    let videoTitle = 'Video Title';
+    let videoDescription = 'Video description not available';
+    let channelName = 'Channel';
 
-    Your task is to:
-    1. Browse to the provided YouTube URL
-    2. Watch the video content
-    3. Extract the actual video title, description, and key points
-    4. Create authentic, human-like summaries and social media content
+    try {
+      console.log('Fetching video metadata...');
+      const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+      });
+      
+      if (response.ok) {
+        const html = await response.text();
+        
+        // Extract title
+        const titleMatch = html.match(/<title>([^<]+)<\/title>/);
+        if (titleMatch) {
+          videoTitle = titleMatch[1].replace(' - YouTube', '').trim();
+        }
+        
+        // Extract description
+        const descMatch = html.match(/<meta name="description" content="([^"]+)"/);
+        if (descMatch) {
+          videoDescription = descMatch[1];
+        }
+        
+        // Extract channel name
+        const channelMatch = html.match(/"ownerText":\{"runs":\[\{"text":"([^"]+)"/);
+        if (channelMatch) {
+          channelName = channelMatch[1];
+        }
+        
+        console.log('Extracted metadata:', { videoTitle, channelName, descriptionLength: videoDescription.length });
+      }
+    } catch (error) {
+      console.error('Failed to fetch video metadata:', error);
+    }
+
+    // If we couldn't get good metadata, try using Serper API as fallback
+    if (videoTitle === 'Video Title' || videoDescription === 'Video description not available') {
+      try {
+        const serperKey = process.env.SERPER_API_KEY;
+        if (serperKey) {
+          console.log('Using Serper API as fallback...');
+          const serperResponse = await fetch('https://google.serper.dev/search', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-KEY': serperKey,
+            },
+            body: JSON.stringify({
+              q: `site:youtube.com ${videoId}`,
+              num: 1
+            })
+          });
+          
+          const serperData = await serperResponse.json();
+          if (serperData.organic && serperData.organic.length > 0) {
+            const result = serperData.organic[0];
+            if (result.title) videoTitle = result.title;
+            if (result.snippet) videoDescription = result.snippet;
+            console.log('Serper fallback successful:', { videoTitle, descriptionLength: videoDescription.length });
+          }
+        }
+      } catch (serperError) {
+        console.error('Serper fallback failed:', serperError);
+      }
+    }
+
+    // Use the extracted metadata to create a more targeted prompt
+    const systemPrompt = `You are a video content analyst. You will be given specific video information and need to create authentic, human-like summaries and social media content based on that information.
 
     Return JSON with this exact structure:
     {
-      "title": "Actual video title from the video",
-      "summary": "Detailed summary based on actual video content",
+      "title": "Video title",
+      "summary": "Detailed summary based on the provided video information",
       "linkedinPost": "Professional LinkedIn post based on video content",
       "twitterThread": ["Tweet 1", "Tweet 2", "Tweet 3", "Tweet 4", "Tweet 5"]
     }`;
 
-    const userPrompt = `Please browse to this YouTube video and watch it: ${url}
+    const userPrompt = `Analyze this YouTube video based on the following information:
 
-    After watching the video, provide:
-    1. The actual video title
-    2. A detailed summary of what the video covers
-    3. A LinkedIn post that would be relevant to someone who watched this video
-    4. A Twitter thread (5 tweets) that captures the key points
+    Video Title: ${videoTitle}
+    Channel: ${channelName}
+    Description: ${videoDescription}
+    URL: ${url}
 
-    Make sure your content is based on the actual video content, not generic content.`;
+    Create a detailed summary and social media content that accurately reflects what this specific video is about. Base your content on the actual video title and description provided above.`;
 
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
