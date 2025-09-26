@@ -7,12 +7,20 @@ export const dynamic = 'force-dynamic';
 // Function to extract video transcript using youtube-transcript library
 async function getVideoTranscript(videoId: string): Promise<string> {
   try {
+    console.log('Attempting to fetch transcript for video:', videoId);
     const transcript = await YoutubeTranscript.fetchTranscript(videoId);
     if (transcript && transcript.length > 0) {
-      return transcript.map(item => item.text).join(' ').trim();
+      const transcriptText = transcript.map(item => item.text).join(' ').trim();
+      console.log('Transcript fetched successfully, length:', transcriptText.length);
+      return transcriptText;
     }
   } catch (error) {
-    console.warn('Failed to get transcript:', error);
+    console.error('Failed to get transcript:', error);
+    console.error('Transcript error details:', {
+      message: error?.message,
+      code: error?.code,
+      status: error?.status
+    });
   }
   
   return '';
@@ -21,11 +29,14 @@ async function getVideoTranscript(videoId: string): Promise<string> {
 // Function to get video metadata by scraping YouTube page
 async function getVideoMetadata(videoId: string): Promise<{title: string, description: string, channelTitle: string}> {
   try {
+    console.log('Attempting to fetch metadata for video:', videoId);
     const response = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
     });
+    
+    console.log('Metadata fetch response status:', response.status);
     
     if (response.ok) {
       const html = await response.text();
@@ -153,13 +164,24 @@ export async function POST(request: NextRequest) {
     // If no transcript is available, provide a more detailed prompt
     const hasTranscript = transcript && transcript.length > 50;
     
-    const userPrompt = `Analyze this YouTube video:
-    Title: ${metadata.title}
-    Channel: ${metadata.channelTitle}
-    Description: ${metadata.description}
-    ${hasTranscript ? `Transcript: ${transcript}` : 'Note: No transcript available - analyze based on title and description'}
+    let userPrompt: string;
     
-    Create a natural summary and social media content that sounds like it's written by a real person who actually watched and understood the video. Make the content engaging and authentic. If no transcript is available, create content based on the title and description that would be relevant to someone who watched this video.`;
+    if (hasTranscript) {
+      // Use transcript if available
+      userPrompt = `Analyze this YouTube video:
+      Title: ${metadata.title}
+      Channel: ${metadata.channelTitle}
+      Description: ${metadata.description}
+      Transcript: ${transcript}
+      
+      Create a natural summary and social media content that sounds like it's written by a real person who actually watched and understood the video. Make the content engaging and authentic.`;
+    } else {
+      // Fallback: Use OpenAI's web browsing capability
+      console.log('No transcript available, using OpenAI web browsing fallback');
+      userPrompt = `Watch and analyze this YouTube video: ${url}
+      
+      Create a natural summary and social media content that sounds like it's written by a real person who actually watched and understood the video. Make the content engaging and authentic.`;
+    }
 
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
