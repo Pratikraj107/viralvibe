@@ -14,7 +14,7 @@ async function getVideoTranscript(videoId: string): Promise<string> {
       console.log('Transcript fetched successfully, length:', transcriptText.length);
       return transcriptText;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to get transcript:', error);
     console.error('Transcript error details:', {
       message: error?.message,
@@ -86,7 +86,7 @@ async function getVideoMetadata(videoId: string): Promise<{title: string, descri
         channelTitle
       };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.warn('Failed to get video metadata:', error);
   }
   
