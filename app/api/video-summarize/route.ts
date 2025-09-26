@@ -137,11 +137,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Create system prompt for video analysis
-    const systemPrompt = `You're a skilled video analyst who watches YouTube videos and creates natural, human-like summaries and social media content. Write as if you're a knowledgeable person sharing insights about a video you just watched, not an AI. Use conversational tone, personal opinions, and authentic language. Avoid corporate speak or obvious AI patterns.
+    const systemPrompt = `You're a skilled video analyst who watches YouTube videos and creates natural, human-like summaries and social media content. You have the ability to browse the web and watch YouTube videos directly. Write as if you're a knowledgeable person sharing insights about a video you just watched, not an AI. Use conversational tone, personal opinions, and authentic language. Avoid corporate speak or obvious AI patterns.
+
+    IMPORTANT: You must actually watch the video by browsing to the URL provided. Do not generate generic content - base your response on the actual video content you observe.
 
     Return JSON with this structure:
     {
-      "title": "Video title",
+      "title": "Actual video title from the video",
       "summary": "Natural, conversational summary that sounds like a real person explaining what they learned from the video",
       "linkedinPost": "Professional but human LinkedIn post that sounds genuine and engaging",
       "twitterThread": ["Tweet 1", "Tweet 2", "Tweet 3", "Tweet 4", "Tweet 5"]
@@ -178,9 +180,11 @@ export async function POST(request: NextRequest) {
     } else {
       // Fallback: Use OpenAI's web browsing capability
       console.log('No transcript available, using OpenAI web browsing fallback');
-      userPrompt = `Watch and analyze this YouTube video: ${url}
+      userPrompt = `Please browse to and watch this YouTube video: ${url}
       
-      Create a natural summary and social media content that sounds like it's written by a real person who actually watched and understood the video. Make the content engaging and authentic.`;
+      After watching the video, create a natural summary and social media content that sounds like it's written by a real person who actually watched and understood the video. Make the content engaging and authentic.
+      
+      IMPORTANT: You must actually browse to the URL and watch the video content. Do not generate generic content - base your response on what you actually observe in the video.`;
     }
 
     const response = await openai.chat.completions.create({

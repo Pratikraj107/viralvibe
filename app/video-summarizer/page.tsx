@@ -42,7 +42,7 @@ export default function VideoSummarizerPage() {
     setSummarizedContent(null);
 
     try {
-      const response = await fetch('/api/video-summarize', {
+      const response = await fetch('/api/video-summarize-v2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
