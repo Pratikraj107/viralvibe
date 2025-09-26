@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     console.log('Testing YouTube Data API for video:', videoId);
 
     // Test YouTube Data API
-    let youtubeResult = { success: false, title: '', description: '', channel: '', error: null };
+    let youtubeResult = { success: false, title: '', description: '', channel: '', error: null as string | null };
     try {
       const youtubeApiKey = process.env.YOUTUBE_API_KEY;
       if (!youtubeApiKey) {
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Test Serper API as fallback
-    let serperResult = { success: false, title: '', description: '', error: null };
+    let serperResult = { success: false, title: '', description: '', error: null as string | null };
     try {
       const serperKey = process.env.SERPER_API_KEY;
       if (serperKey) {
