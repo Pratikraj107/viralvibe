@@ -27,10 +27,8 @@ async function generateAIContent(
 ): Promise<{ tweets: string[]; linkedinPosts: string[] }> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    // Fallback to simple mock if key missing
-    const tweets = Array.from({ length: numVariants }).map((_, i) => `🚀 ${i + 1}/ ${topic} insights:\n\n✨ Innovation at its finest\n📈 Rapid adoption\n🌟 Big potential ahead\n\nYour take on ${topic}? #Innovation #${topic.replace(/\s+/g, '')} #TechTrends`);
-    const linkedinPosts = Array.from({ length: numVariants }).map((_, i) => `🌟 (${i + 1}/${numVariants}) The Future of ${topic}\n\n🔍 Key Observations:\n• Rapid innovation\n• Meaningful investments\n• Early wins emerging\n• Cross-sector potential\n\n💡 Why it matters:\n${topic} is reshaping efficiency and decision-making. Early adopters build durable advantages.\n\n📈 Looking ahead:\nExpect ${topic} to become core to strategy and operations. How are you approaching it?\n\n#${topic.replace(/\s+/g, '')} #Innovation #FutureOfWork #Technology`);
-    return { tweets, linkedinPosts };
+    console.error('OPENAI_API_KEY is not set');
+    throw new Error('OpenAI API key is not configured. Please check your environment variables.');
   }
 
   const openai = new OpenAI({ apiKey });
@@ -100,11 +98,24 @@ export async function POST(request: NextRequest) {
       linkedinPosts = ai.linkedinPosts;
     } catch (aiError: any) {
       console.error('OpenAI generation error:', aiError);
+      console.error('Error details:', {
+        message: aiError?.message,
+        status: aiError?.status,
+        code: aiError?.code,
+        type: aiError?.type
+      });
+      
       const isProd = process.env.NODE_ENV === 'production';
       return NextResponse.json(
         {
           error: 'Content generation failed',
           details: isProd ? undefined : String(aiError?.message || aiError),
+          debug: isProd ? undefined : {
+            message: aiError?.message,
+            status: aiError?.status,
+            code: aiError?.code,
+            type: aiError?.type
+          }
         },
         { status: 502 }
       );
