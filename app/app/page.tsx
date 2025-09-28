@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import TwitterPostButton from '@/components/TwitterPostButton';
 
 interface GeneratedContent {
   tweets: string[];
@@ -251,34 +252,37 @@ export default function GeneratorPage() {
                         <p className="text-gray-800 leading-relaxed whitespace-pre-wrap mb-3">{tweet}</p>
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-gray-500">{tweet.length}/280 characters</span>
-                          <Button
-                            onClick={() => copyToClipboard(tweet, 'Twitter')}
-                            variant="outline"
-                            size="sm"
-                            className="border-blue-200 text-blue-600 hover:bg-blue-50"
-                          >
-                            <Copy className="h-4 w-4 mr-1" />
-                            Copy
-                          </Button>
-                          <Button
-                            onClick={() => generateImage(tweet, `twitter-${idx}`)}
-                            variant="outline"
-                            size="sm"
-                            className="ml-2 border-blue-200 text-blue-600 hover:bg-blue-50"
-                            disabled={!!imageLoading[`twitter-${idx}`]}
-                          >
-                            {imageLoading[`twitter-${idx}`] ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                                Generating
-                              </>
-                            ) : (
-                              <>
-                                <ImageIcon className="h-4 w-4 mr-1" />
-                                Generate Image
-                              </>
-                            )}
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <TwitterPostButton text={tweet} />
+                            <Button
+                              onClick={() => copyToClipboard(tweet, 'Twitter')}
+                              variant="outline"
+                              size="sm"
+                              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                            >
+                              <Copy className="h-4 w-4 mr-1" />
+                              Copy
+                            </Button>
+                            <Button
+                              onClick={() => generateImage(tweet, `twitter-${idx}`)}
+                              variant="outline"
+                              size="sm"
+                              className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                              disabled={!!imageLoading[`twitter-${idx}`]}
+                            >
+                              {imageLoading[`twitter-${idx}`] ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                  Generating
+                                </>
+                              ) : (
+                                <>
+                                  <ImageIcon className="h-4 w-4 mr-1" />
+                                  Generate Image
+                                </>
+                              )}
+                            </Button>
+                          </div>
                         </div>
                         {images[`twitter-${idx}`] && (
                           <div className="mt-3">
@@ -372,7 +376,8 @@ export default function GeneratorPage() {
                         {thread.map((tweet, idx) => (
                           <div key={idx} className="p-3 rounded border bg-white">
                             <p className="whitespace-pre-wrap text-gray-800">{tweet}</p>
-                            <div className="mt-2 flex justify-end">
+                            <div className="mt-2 flex justify-end gap-2">
+                              <TwitterPostButton text={tweet} />
                               <Button onClick={() => copyToClipboard(tweet, 'Twitter')} variant="outline" size="sm">
                                 <Copy className="h-4 w-4 mr-1" /> Copy
                               </Button>

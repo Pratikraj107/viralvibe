@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import Link from 'next/link';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { TwitterProvider } from '@/contexts/TwitterContext';
 import Header from '@/components/Header';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -22,9 +23,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <Header />
-          {children}
-          <Toaster position="top-right" />
+          <TwitterProvider>
+            <Header />
+            {children}
+            <Toaster position="top-right" />
+          </TwitterProvider>
         </AuthProvider>
       </body>
     </html>
