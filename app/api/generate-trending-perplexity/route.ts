@@ -5,8 +5,8 @@ export const dynamic = 'force-dynamic';
 const allowed = ['Business','Tech','Sports','Entertainment','Movies','Politics','Science','Health','Products'];
 
 export async function POST(request: NextRequest) {
-  let normalized: string;
-  let countryCode: string;
+  let normalized: string = 'Tech'; // Default value
+  let countryCode: string = 'us'; // Default value
   
   try {
     const { category, country } = await request.json();
