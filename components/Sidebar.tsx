@@ -84,7 +84,7 @@ export default function Sidebar() {
       <div className={`
         fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-50 transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:z-auto
+        lg:translate-x-0 lg:static lg:z-auto lg:flex-shrink-0
       `}>
         <div className="flex flex-col h-full">
           {/* Logo/Header */}

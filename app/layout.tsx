@@ -25,10 +25,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <TwitterProvider>
-            <Sidebar />
-            <MainContent>
-              {children}
-            </MainContent>
+            <div className="flex min-h-screen">
+              <Sidebar />
+              <MainContent>
+                {children}
+              </MainContent>
+            </div>
             <Toaster position="top-right" />
           </TwitterProvider>
         </AuthProvider>
