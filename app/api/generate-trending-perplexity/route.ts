@@ -18,7 +18,11 @@ export async function POST(request: NextRequest) {
 
     const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
     if (!perplexityApiKey) {
-      return NextResponse.json({ error: 'Perplexity API key not configured' }, { status: 500 });
+      console.error('PERPLEXITY_API_KEY not found in environment variables');
+      return NextResponse.json({ 
+        error: 'Perplexity API key not configured. Please add PERPLEXITY_API_KEY to your environment variables.',
+        fallback: true 
+      }, { status: 500 });
     }
 
     // Create a specific query for Perplexity based on category and country
@@ -80,8 +84,13 @@ export async function POST(request: NextRequest) {
 
     if (!perplexityResponse.ok) {
       const errorText = await perplexityResponse.text();
-      console.error('Perplexity API error:', perplexityResponse.status, errorText);
-      throw new Error(`Perplexity API error: ${perplexityResponse.status}`);
+      console.error('Perplexity API error:', {
+        status: perplexityResponse.status,
+        statusText: perplexityResponse.statusText,
+        error: errorText,
+        apiKeyPrefix: perplexityApiKey.substring(0, 10) + '...'
+      });
+      throw new Error(`Perplexity API error: ${perplexityResponse.status} - ${errorText}`);
     }
 
     const perplexityData = await perplexityResponse.json();
@@ -141,7 +150,57 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Perplexity trending topics API error:', error);
     
-    // Fallback: Return 10 generic topics if everything fails
+    // Try fallback to Serper API if available
+    const serperKey = process.env.SERPER_API_KEY;
+    if (serperKey) {
+      try {
+        console.log('Falling back to Serper API...');
+        const catQuery: Record<string, string> = {
+          Business: 'trending business keywords hashtags startups investments',
+          Tech: 'trending tech keywords hashtags AI software apps startups',
+          Sports: 'trending sports keywords hashtags athletes teams games',
+          Entertainment: 'trending entertainment keywords hashtags celebrities shows',
+          Movies: 'trending movie keywords hashtags actors directors franchises',
+          Politics: 'trending political keywords hashtags politicians elections',
+          Science: 'trending science keywords hashtags research discoveries',
+          Health: 'trending health keywords hashtags medical wellness',
+          Products: 'trending tech products keywords hashtags gadgets devices',
+        };
+        
+        const serperRes = await fetch('https://google.serper.dev/news', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-KEY': serperKey,
+          },
+          body: JSON.stringify({ q: catQuery[normalized], gl: countryCode, hl: 'en', num: 10 })
+        });
+        
+        if (serperRes.ok) {
+          const serperData: any = await serperRes.json();
+          const titles = Array.isArray(serperData?.news)
+            ? serperData.news.map((n: any, index: number) => {
+                const baseSummary = n?.snippet || n?.description || `This ${normalized.toLowerCase()} topic is currently trending and generating significant interest among users and media outlets.`;
+                const enhancedSummary = `${baseSummary} This topic is gaining momentum due to recent developments, user engagement, and media coverage. It represents current trends and discussions in the ${normalized.toLowerCase()} space.`;
+                const articleLink = n?.link ? `\n\nRead more: ${n.link}` : '';
+                
+                return {
+                  title: n?.title || `Trending ${normalized} topic ${index + 1}`,
+                  summary: enhancedSummary + articleLink
+                };
+              }).filter(Boolean).slice(0, 10)
+            : [];
+          if (titles.length) {
+            console.log(`Serper fallback successful: ${titles.length} topics`);
+            return NextResponse.json({ topics: titles });
+          }
+        }
+      } catch (serperError) {
+        console.error('Serper fallback also failed:', serperError);
+      }
+    }
+    
+    // Final fallback: Return 10 generic topics if everything fails
     const fallbackTopics = Array.from({ length: 10 }).map((_, i) => ({
       title: `Trending topic ${i+1}`,
       summary: `This topic is currently trending and generating significant interest among users and media outlets. It represents current market trends and discussions.`
