@@ -20,7 +20,7 @@ export default function TrendingPage() {
     setIsLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/generate-trending', {
+      const res = await fetch('/api/generate-trending-perplexity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ category: selected, country })

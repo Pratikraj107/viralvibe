@@ -9,6 +9,7 @@ Add these to your deployment platform (Netlify/Vercel):
 OPENAI_API_KEY=sk-your-openai-key-here
 SERPER_API_KEY=your-serper-key-here
 YOUTUBE_API_KEY=your-youtube-api-key-here
+PERPLEXITY_API_KEY=pplx-your-perplexity-key-here
 ```
 
 ### Authentication
@@ -24,6 +25,20 @@ TWITTER_CLIENT_SECRET=your_twitter_client_secret_here
 TWITTER_REDIRECT_URI=https://your-domain.com/api/twitter/callback
 NEXT_PUBLIC_APP_URL=https://your-domain.com
 ```
+
+## Perplexity API Setup (NEW - Recommended for Trending Topics)
+
+### 1. Get Perplexity API Key
+1. Go to [Perplexity API Console](https://www.perplexity.ai/settings/api)
+2. Sign up or log in to your Perplexity account
+3. Create a new API key
+4. Copy the API key (starts with `pplx-`)
+
+### 2. Benefits of Perplexity API
+- **Real-time web access**: Gets current trending topics and news
+- **Better accuracy**: More reliable than generic AI responses
+- **Country-specific results**: Tailored to your selected country
+- **Current data**: Uses the latest information available
 
 ## Twitter API Setup
 
