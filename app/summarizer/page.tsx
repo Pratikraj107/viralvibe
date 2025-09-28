@@ -72,22 +72,21 @@ export default function SummarizerPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="text-center mb-8 sm:mb-12">
-            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4">
-              <div className="p-2 sm:p-3 bg-gradient-to-r from-green-600 to-blue-600 rounded-full">
-                <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-              </div>
-              <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-                AI Summarizer
-              </h1>
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-green-600 to-blue-600 rounded-full">
+              <FileText className="h-8 w-8 text-white" />
             </div>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
-              Paste any article, blog, or news URL and get an AI-powered summary, LinkedIn post, and Twitter thread.
-            </p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+              AI Summarizer
+            </h1>
           </div>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Paste any article, blog, or news URL and get an AI-powered summary, LinkedIn post, and Twitter thread.
+          </p>
+        </div>
 
           {/* Input Section */}
           <div className="max-w-4xl mx-auto mb-8">
@@ -290,7 +289,6 @@ export default function SummarizerPage() {
             <p>Powered by AI • Transform any article into engaging social media content</p>
           </div>
         </div>
-      </div>
     </ProtectedRoute>
   );
 }

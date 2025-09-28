@@ -105,19 +105,18 @@ export default function GeneratorPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8 sm:mb-12">
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4">
-            <div className="p-2 sm:p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full">
-              <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full">
+              <Sparkles className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               AI Content Generator
             </h1>
           </div>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Transform any topic into engaging social media content. Get AI-powered tweets and LinkedIn posts in seconds.
           </p>
         </div>
@@ -440,9 +439,8 @@ export default function GeneratorPage() {
         <div className="text-center mt-16 text-gray-500">
           <p>Powered by AI • Generate engaging social media content effortlessly</p>
         </div>
-      </div>
-    </div>
-    </ProtectedRoute>
+        </div>
+      </ProtectedRoute>
   );
 }
 

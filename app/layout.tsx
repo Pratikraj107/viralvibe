@@ -5,7 +5,8 @@ import { Toaster } from 'sonner';
 import Link from 'next/link';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { TwitterProvider } from '@/contexts/TwitterContext';
-import Header from '@/components/Header';
+import Sidebar from '@/components/Sidebar';
+import MainContent from '@/components/MainContent';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,8 +25,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <TwitterProvider>
-            <Header />
-            {children}
+            <Sidebar />
+            <MainContent>
+              {children}
+            </MainContent>
             <Toaster position="top-right" />
           </TwitterProvider>
         </AuthProvider>

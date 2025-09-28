@@ -72,10 +72,11 @@ export default function TrendingPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Trending topics</h1>
-        <p className="text-gray-600 mb-6 text-sm sm:text-base">Pick a category and generate 10 current trends.</p>
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Trending Topics</h1>
+          <p className="text-lg text-gray-600">Pick a category and generate 10 current trends.</p>
+        </div>
 
         <div className="flex flex-wrap gap-2 mb-4">
           {categories.map((c) => (
@@ -192,8 +193,7 @@ export default function TrendingPage() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+        </div>
     </ProtectedRoute>
   );
 }

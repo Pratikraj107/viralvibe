@@ -80,22 +80,21 @@ export default function VideoSummarizerPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="text-center mb-8 sm:mb-12">
-            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4">
-              <div className="p-2 sm:p-3 bg-gradient-to-r from-red-600 to-orange-600 rounded-full">
-                <Video className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-              </div>
-              <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
-                Video Summarizer
-              </h1>
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="p-3 bg-gradient-to-r from-red-600 to-orange-600 rounded-full">
+              <Video className="h-8 w-8 text-white" />
             </div>
-            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
-              Paste any YouTube video URL and get an AI-powered summary, LinkedIn post, and Twitter thread based on the video content.
-            </p>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+              Video Summarizer
+            </h1>
           </div>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Paste any YouTube video URL and get an AI-powered summary, LinkedIn post, and Twitter thread based on the video content.
+          </p>
+        </div>
 
           {/* Input Section */}
           <div className="max-w-4xl mx-auto mb-8">
@@ -299,7 +298,6 @@ export default function VideoSummarizerPage() {
             <p>Powered by AI • Transform any YouTube video into engaging social media content</p>
           </div>
         </div>
-      </div>
     </ProtectedRoute>
   );
 }
