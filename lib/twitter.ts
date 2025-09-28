@@ -21,14 +21,18 @@ export const TWITTER_CONFIG = {
 };
 
 // Generate Twitter OAuth URL
-export function getTwitterAuthUrl(state: string): string {
+export function getTwitterAuthUrl(state: string, codeVerifier: string): string {
+  // For now, use the code verifier as the challenge (plain method)
+  // This is less secure but works for development
+  const codeChallenge = codeVerifier;
+  
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: TWITTER_CONFIG.clientId,
     redirect_uri: TWITTER_CONFIG.redirectUri,
     scope: TWITTER_CONFIG.scope,
     state: state,
-    code_challenge: 'challenge', // For PKCE
+    code_challenge: codeChallenge,
     code_challenge_method: 'plain',
   });
 
@@ -104,6 +108,17 @@ export function generateCodeVerifier(): string {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
   return btoa(String.fromCharCode.apply(null, Array.from(array)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
+// Generate PKCE code challenge
+export async function generateCodeChallenge(codeVerifier: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(codeVerifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '');
