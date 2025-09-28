@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import OpenAI from 'openai';
 
+// Function to get mood-specific instructions
+function getMoodInstructions(mood: string): string {
+  const moodMap: Record<string, string> = {
+    professional: 'Write in a professional, business-focused tone. Use formal language, industry insights, and data-driven points. Avoid slang and casual expressions.',
+    casual: 'Write in a relaxed, conversational tone. Use everyday language, personal anecdotes, and friendly expressions. Make it feel like talking to a friend.',
+    funny: 'Write with humor, wit, and light-heartedness. Use jokes, puns, memes, and entertaining content. Make people smile and laugh while still being informative.',
+    insightful: 'Write with deep analysis, thought-provoking questions, and intellectual depth. Use critical thinking, unique perspectives, and profound observations.',
+    motivational: 'Write with inspiration, encouragement, and positive energy. Use uplifting language, success stories, and calls to action. Make people feel empowered.',
+    controversial: 'Write with bold, provocative statements that challenge conventional thinking. Use strong opinions, debate-worthy points, and attention-grabbing content.',
+    educational: 'Write with clear explanations, step-by-step guidance, and learning-focused content. Use examples, analogies, and structured information.',
+    inspiring: 'Write with emotional appeal, storytelling, and aspirational content. Use personal stories, achievements, and vision-driven language.',
+    conversational: 'Write like you\'re having a real conversation. Use questions, responses, and interactive language. Make it feel like a dialogue.',
+    authoritative: 'Write with expertise, confidence, and leadership. Use strong statements, industry knowledge, and commanding presence.'
+  };
+  
+  return moodMap[mood] || moodMap.professional;
+}
+
 // Mock search function - In production, replace with actual search API
 async function searchWeb(topic: string): Promise<string[]> {
   // Simulate web search results
@@ -23,7 +41,8 @@ async function searchWeb(topic: string): Promise<string[]> {
 async function generateAIContent(
   topic: string,
   searchResults: string[],
-  numVariants: number = 3
+  numVariants: number = 3,
+  mood: string = 'professional'
 ): Promise<{ tweets: string[]; linkedinPosts: string[] }> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -34,7 +53,9 @@ async function generateAIContent(
   const openai = new OpenAI({ apiKey });
 
   const system = `You're a skilled social media writer who creates authentic, engaging content. Write like a real person sharing genuine insights, not an AI. Use natural language, personal opinions, and conversational tone. Avoid corporate speak, excessive emojis, or obvious AI patterns. Write as if you're genuinely excited about the topic and sharing your thoughts with friends or colleagues. Return JSON with "tweets" and "linkedinPosts" arrays.`;
-  const user = `Write about: ${topic}\n\nContext: ${searchResults.slice(0, 5).join(' | ')}\n\nCreate ${numVariants} different Twitter posts and ${numVariants} different LinkedIn posts. Make each one sound like it's written by a real person with genuine interest in the topic.`;
+  
+  const moodInstructions = getMoodInstructions(mood);
+  const user = `Write about: ${topic}\n\nContext: ${searchResults.slice(0, 5).join(' | ')}\n\nMood/Tone: ${moodInstructions}\n\nCreate ${numVariants} different Twitter posts and ${numVariants} different LinkedIn posts. Make each one sound like it's written by a real person with genuine interest in the topic, following the specified mood and tone.`;
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
@@ -67,7 +88,7 @@ async function generateAIContent(
 
 export async function POST(request: NextRequest) {
   try {
-    const { topic, mode } = await request.json();
+    const { topic, mode, mood = 'professional' } = await request.json();
 
     if (!topic || typeof topic !== 'string') {
       return NextResponse.json(
@@ -93,7 +114,7 @@ export async function POST(request: NextRequest) {
     let tweets: string[] = [];
     let linkedinPosts: string[] = [];
     try {
-      const ai = await generateAIContent(cleanTopic, searchResults, variants);
+      const ai = await generateAIContent(cleanTopic, searchResults, variants, mood);
       tweets = ai.tweets;
       linkedinPosts = ai.linkedinPosts;
     } catch (aiError: any) {
@@ -150,10 +171,12 @@ export async function POST(request: NextRequest) {
             }
 
             const system = 'You write engaging Twitter threads that sound like they come from a knowledgeable person sharing insights. Write naturally, use real examples, and make it conversational. Each thread should be 4-6 tweets that flow together. Return JSON {"threads": string[][]}.';
+            const moodInstructions = getMoodInstructions(mood);
             const user = `Write 2 different Twitter threads about: ${cleanTopic}. 
 Context: ${searchResults.slice(0,5).join(' | ')}
 Examples: ${realExamples || 'Use your knowledge of recent trends'}
-Make each thread sound like a real expert sharing genuine insights, not AI-generated content.`;
+Mood/Tone: ${moodInstructions}
+Make each thread sound like a real expert sharing genuine insights, not AI-generated content, following the specified mood and tone.`;
             const resp = await openai.chat.completions.create({
               model: 'gpt-4o-mini',
               messages: [ { role: 'system', content: system }, { role: 'user', content: user } ],
@@ -165,9 +188,11 @@ Make each thread sound like a real expert sharing genuine insights, not AI-gener
             if (Array.isArray(parsed?.threads)) threads = parsed.threads;
           } else if (mode === 'instagram') {
             const system = 'Write Instagram captions that sound like they come from a real person sharing their thoughts. Use natural language, appropriate emojis, and relevant hashtags. Make it conversational and authentic. Return JSON {"instagramPosts": string[]}.';
+            const moodInstructions = getMoodInstructions(mood);
             const user = `Write 3 different Instagram captions about: ${cleanTopic}. 
 Context: ${searchResults.slice(0,5).join(' | ')}
-Make each caption sound like a genuine person sharing their perspective, not AI-generated content.`;
+Mood/Tone: ${moodInstructions}
+Make each caption sound like a genuine person sharing their perspective, not AI-generated content, following the specified mood and tone.`;
             const resp = await openai.chat.completions.create({
               model: 'gpt-4o-mini',
               messages: [ { role: 'system', content: system }, { role: 'user', content: user } ],

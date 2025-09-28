@@ -31,6 +31,7 @@ export default function GeneratorPage() {
   const [imageLoading, setImageLoading] = useState<Record<string, boolean>>({});
   const [images, setImages] = useState<GeneratedImageMap>({});
   const [mode, setMode] = useState<'default' | 'twitter_threads' | 'instagram'>('default');
+  const [mood, setMood] = useState<string>('professional');
 
   const generateContent = async () => {
     if (!topic.trim()) {
@@ -47,7 +48,7 @@ export default function GeneratorPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ topic: topic.trim(), mode }),
+        body: JSON.stringify({ topic: topic.trim(), mode, mood }),
       });
 
       if (!response.ok) {
@@ -147,6 +148,26 @@ export default function GeneratorPage() {
                     <option value="default">Default (Twitter + LinkedIn)</option>
                     <option value="twitter_threads">Twitter Threads</option>
                     <option value="instagram">Instagram Posts</option>
+                  </select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Mood:</span>
+                  <select
+                    className="h-10 rounded-md border border-gray-300 bg-white px-2"
+                    value={mood}
+                    onChange={(e) => setMood(e.target.value)}
+                    disabled={isLoading}
+                  >
+                    <option value="professional">Professional</option>
+                    <option value="casual">Casual</option>
+                    <option value="funny">Funny</option>
+                    <option value="insightful">Insightful</option>
+                    <option value="motivational">Motivational</option>
+                    <option value="controversial">Controversial</option>
+                    <option value="educational">Educational</option>
+                    <option value="inspiring">Inspiring</option>
+                    <option value="conversational">Conversational</option>
+                    <option value="authoritative">Authoritative</option>
                   </select>
                 </div>
                 <Button 
