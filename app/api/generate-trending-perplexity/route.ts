@@ -102,8 +102,8 @@ export async function POST(request: NextRequest) {
         topics = JSON.parse(jsonMatch[0]);
       } else {
         // If no JSON array found, try to extract topics from text
-        const lines = content.split('\n').filter(line => line.trim());
-        topics = lines.slice(0, 10).map((line, index) => ({
+        const lines = content.split('\n').filter((line: string) => line.trim());
+        topics = lines.slice(0, 10).map((line: string, index: number) => ({
           title: line.replace(/^\d+\.\s*/, '').split(':')[0]?.trim() || `${normalized} trending topic ${index + 1}`,
           summary: line.split(':')[1]?.trim() || `This ${normalized.toLowerCase()} topic is currently trending and generating significant interest.`
         }));
@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
     } catch (parseError) {
       console.error('Error parsing Perplexity response:', parseError);
       // Fallback: create topics from the raw content
-      const lines = content.split('\n').filter(line => line.trim());
-      topics = lines.slice(0, 10).map((line, index) => ({
+      const lines = content.split('\n').filter((line: string) => line.trim());
+      topics = lines.slice(0, 10).map((line: string, index: number) => ({
         title: line.replace(/^\d+\.\s*/, '').split(':')[0]?.trim() || `${normalized} trending topic ${index + 1}`,
         summary: line.split(':')[1]?.trim() || `This ${normalized.toLowerCase()} topic is currently trending and generating significant interest.`
       }));
