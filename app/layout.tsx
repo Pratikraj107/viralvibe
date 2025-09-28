@@ -2,11 +2,9 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
-import Link from 'next/link';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { TwitterProvider } from '@/contexts/TwitterContext';
-import Sidebar from '@/components/Sidebar';
-import MainContent from '@/components/MainContent';
+import ConditionalLayout from '@/components/ConditionalLayout';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,12 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <TwitterProvider>
-            <div className="flex min-h-screen">
-              <Sidebar />
-              <MainContent>
-                {children}
-              </MainContent>
-            </div>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
             <Toaster position="top-right" />
           </TwitterProvider>
         </AuthProvider>
