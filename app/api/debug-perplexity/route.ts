@@ -22,8 +22,12 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'sonar-pro',
         messages: [
+          {
+            role: 'system',
+            content: 'You are a trending topics analyst that provides current, real-time trending topics.'
+          },
           {
             role: 'user',
             content: 'What are 3 trending tech topics today? Return as JSON array with title and summary.'

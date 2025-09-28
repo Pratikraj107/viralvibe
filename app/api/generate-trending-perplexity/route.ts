@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     
     console.log(`Fetching trending topics for ${normalized} in ${countryCode} using Perplexity API`);
 
-    // Call Perplexity API
+    // Call Perplexity API using the correct model and format
     const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
@@ -53,19 +53,23 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'sonar-pro',
         messages: [
           {
             role: 'system',
-            content: `You are a trending topics analyst. Find the most current and relevant trending topics, keywords, and hashtags for the given category and country. Return exactly 10 trending topics with titles and summaries. Focus on what's actually trending right now with real data and current events.`
+            content: 'You are a trending topics analyst that provides current, real-time trending topics and keywords. Focus on what is actually trending right now with real data and current events.'
           },
           {
             role: 'user',
-            content: `Find 10 current trending topics, keywords, and hashtags for ${normalized} in ${countryCode.toUpperCase()}. Include specific trending terms, popular search queries, and current events. For each topic, provide:
+            content: `Find 10 current trending topics, keywords, and hashtags for ${normalized} in ${countryCode.toUpperCase()}. 
+
+            For each topic, provide:
             1. A concise title (under 90 characters)
             2. A brief summary (1-2 sentences) explaining why it's trending and what makes it relevant now
             
-            Focus on topics that are actively being discussed, searched, and shared on social media right now. Include relevant keywords and hashtags. Return the response as a JSON array with this exact structure:
+            Focus on topics that are actively being discussed, searched, and shared on social media right now. Include relevant keywords and hashtags.
+            
+            Return the response as a JSON array with this exact structure:
             [
               {
                 "title": "Topic Title",
@@ -77,11 +81,7 @@ export async function POST(request: NextRequest) {
           }
         ],
         max_tokens: 2000,
-        temperature: 0.7,
-        top_p: 0.9,
-        return_citations: false,
-        search_domain_filter: [],
-        search_recency_filter: "month"
+        temperature: 0.7
       })
     });
 
