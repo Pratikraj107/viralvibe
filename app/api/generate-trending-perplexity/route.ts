@@ -5,13 +5,16 @@ export const dynamic = 'force-dynamic';
 const allowed = ['Business','Tech','Sports','Entertainment','Movies','Politics','Science','Health','Products'];
 
 export async function POST(request: NextRequest) {
+  let normalized: string;
+  let countryCode: string;
+  
   try {
     const { category, country } = await request.json();
     if (!category || typeof category !== 'string') {
       return NextResponse.json({ error: 'category is required' }, { status: 400 });
     }
-    const normalized = category.trim();
-    const countryCode = typeof country === 'string' && country.length === 2 ? country.toLowerCase() : 'us';
+    normalized = category.trim();
+    countryCode = typeof country === 'string' && country.length === 2 ? country.toLowerCase() : 'us';
     if (!allowed.includes(normalized)) {
       return NextResponse.json({ error: 'Unsupported category' }, { status: 400 });
     }
